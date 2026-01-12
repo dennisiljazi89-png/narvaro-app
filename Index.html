@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8">
+  <title>Närvaroapp</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+    th, td { border: 1px solid #ccc; padding: 8px; }
+    .time-fields { display: none; }
+    input[type=time] { width: 100px; }
+    button { cursor: pointer; }
+  </style>
+</head>
+<body>
+
+<h1>Närvaro – Inloggning</h1>
+
+<div id="loginDiv">
+  <input type="email" id="email" placeholder="Email">
+  <input type="password" id="password" placeholder="Lösenord">
+  <button onclick="login()">Logga in</button>
+</div>
+
+<div id="appDiv" style="display:none;">
+  <h2>Personal Närvaro – idag</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Namn</th>
+        <th>Status</th>
+        <th>Tid</th>
+      </tr>
+    </thead>
+    <tbody id="employeeTable"></tbody>
+  </table>
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+  import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+  import { getFirestore, collection, doc, setDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBB_JubmChNGaVHo6a4QWDwOM92sUDdDpc",
+    authDomain: "renrum-65c83.firebaseapp.com",
+    projectId: "renrum-65c83",
+    storageBucket: "renrum-65c83.firebasestorage.app",
+    messagingSenderId: "191057391276",
+    appId: "1:191057391276:web:a00346cd77059c48a93909"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  const employees = ["Anna Svensson", "Erik Nilsson", "Maria Lind"];
+  const employeeTable = document.getElementById("employeeTable");
+  const employeeDocIds = {};
+
+  employees.forEach(name => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${name}</td>
+      <td>
+        <select onchange="toggleTimeFields(this)">
+          <option value="">Välj status</option>
+          <option>Arbetar</option>
+          <option>ATK</option>
+          <option>Semester</option>
+          <option>Vård av barn</option>
